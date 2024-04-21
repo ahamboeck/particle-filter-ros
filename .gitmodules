@@ -1,3 +1,6 @@
 [submodule "prolab_ws/src/submodules/turtlebot3"]
 	path = prolab_ws/src/submodules/turtlebot3
-	url = https://github.com/ahamboeck/turtlebot3
+	url = git@github.com:ahamboeck/turtlebot3.git
+[submodule "prolab_ws/src/submodules/turtlebot3_simulations"]
+	path = prolab_ws/src/submodules/turtlebot3_simulations
+	url = git@github.com:ahamboeck/turtlebot3_simulations.git
