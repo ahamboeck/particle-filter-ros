@@ -91,7 +91,7 @@ private:
     {
         int map_x = std::floor((x - map_.info.origin.position.x) / map_.info.resolution);
         int map_y = std::floor((y - map_.info.origin.position.y) / map_.info.resolution);
-        int max_range_in_cells = std::ceil(10.0 / map_.info.resolution); // Example for 10 meter max range
+        int max_range_in_cells = std::ceil(25.0 / map_.info.resolution); // Example for 10 meter max range
 
         double step_size = 1; // Step by one cell at a time
         for (double step = 0; step < max_range_in_cells; step += step_size)

@@ -56,11 +56,12 @@ public:
         }
     }
 
-    void resample()
+    void resample(double x_min, double x_max, double y_min, double y_max, double theta_min, double theta_max, double percentage_rand_particles)
     {
         std::vector<Particle> new_particles;
         std::vector<double> weights;
-        for (const auto &particle : particles) {
+        for (const auto &particle : particles)
+        {
             weights.push_back(particle.getWeight());
         }
 
@@ -68,14 +69,26 @@ public:
         std::mt19937 gen(rd());
         std::discrete_distribution<> distribution(weights.begin(), weights.end());
 
-        for (int i = 0; i < particles.size(); ++i) {
+        int num_random_particles = particles.size() * percentage_rand_particles; // 5% random particles
+        for (int i = 0; i < particles.size() - num_random_particles; ++i)
+        {
             new_particles.push_back(particles[distribution(gen)]);
+        }
+
+        // Add random particles
+        std::uniform_real_distribution<double> dist_x(x_min, x_max);
+        std::uniform_real_distribution<double> dist_y(y_min, y_max);
+        std::uniform_real_distribution<double> dist_theta(theta_min, theta_max);
+        for (int i = 0; i < num_random_particles; ++i)
+        {
+            Particle random_particle;
+            random_particle.setPose(dist_x(gen), dist_y(gen), dist_theta(gen));
+            random_particle.setWeight(1.0 / particles.size()); // Optional: uniform or small weight
+            new_particles.push_back(random_particle);
         }
 
         particles = new_particles;
     }
-
-    // void resample();
 
 private:
     std::vector<Particle> particles;
