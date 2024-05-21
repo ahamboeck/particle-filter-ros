@@ -57,8 +57,6 @@
   <build_depend>nav_msgs</build_depend>
   <build_depend>geometry_msgs</build_depend>
 
-
-
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>tf</build_export_depend>
