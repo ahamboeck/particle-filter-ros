@@ -11,6 +11,19 @@ class ParticleFilter
 {
 public:
     ParticleFilter(){};
+
+    // Retrieves a copy of all particles
+    std::vector<Particle> getParticles() const
+    {
+        return particles;
+    }
+
+    // Sets the current list of particles to a new list
+    void setParticles(const std::vector<Particle> &new_particles)
+    {
+        particles = new_particles;
+    }
+
     void initialize(double x_min, double x_max, double y_min, double y_max, double theta_min, double theta_max, int num_particles)
     {
         // Seed the random number generator
@@ -38,10 +51,10 @@ public:
             particle.getPose(x, y, theta);
             motion_model.sampleMotionModel(x, y, theta, v, w, dt, var_v, var_w);
             particle.setPose(x, y, theta);
-            ROS_INFO("Predicted pose of particle %d: x = %f, y = %f, theta = %f", particle.getID(), x, y, theta);
+            // ROS_INFO("Predicted pose of particle %d: x = %f, y = %f, theta = %f", particle.getID(), x, y, theta);
         }
     }
-    // void updateWeights(const SensorModel& sensor_model, const SensorData& data);
+
     // void resample();
 
 private:
