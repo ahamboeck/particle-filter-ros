@@ -108,20 +108,21 @@ private:
         std::vector<Particle> particles = filter.getParticles();
 
         // Debugging: Print weights before update
-        for (size_t i = 0; i < particles.size(); ++i)
-        {
-            ROS_INFO("Particle %zu: Weight before update = %f", i, particles[i].getWeight());
-        }
+        // for (size_t i = 0; i < particles.size(); ++i)
+        // {
+        //     ROS_INFO("Particle %zu: Weight before update = %f", i, particles[i].getWeight());
+        // }
 
         sensor_model.updateParticleWeights(particles, *msg, sigma);
         normalizeWeights(particles);
         filter.setParticles(particles);
+        filter.resample();
 
         // Debugging: Print weights after update
-        for (size_t i = 0; i < particles.size(); ++i)
-        {
-            ROS_INFO("Particle %zu: Weight after update = %f", i, particles[i].getWeight());
-        }
+        // for (size_t i = 0; i < particles.size(); ++i)
+        // {
+        //     ROS_INFO("Particle %zu: Weight after update = %f", i, particles[i].getWeight());
+        // }
         publishParticles();
         // filter.updateWeights(*msg);
         // filter.resample();

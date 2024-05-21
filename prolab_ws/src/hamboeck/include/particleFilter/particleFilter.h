@@ -43,6 +43,7 @@ public:
             particles.push_back(p);
         }
     }
+
     void predict(double v, double w, double dt, const MotionModel &motion_model, double var_v, double var_w)
     {
         for (auto &particle : particles)
@@ -53,6 +54,25 @@ public:
             particle.setPose(x, y, theta);
             ROS_INFO("Predicted pose of particle %d: x = %f, y = %f, theta = %f", particle.getID(), x, y, theta);
         }
+    }
+
+    void resample()
+    {
+        std::vector<Particle> new_particles;
+        std::vector<double> weights;
+        for (const auto &particle : particles) {
+            weights.push_back(particle.getWeight());
+        }
+
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::discrete_distribution<> distribution(weights.begin(), weights.end());
+
+        for (int i = 0; i < particles.size(); ++i) {
+            new_particles.push_back(particles[distribution(gen)]);
+        }
+
+        particles = new_particles;
     }
 
     // void resample();
