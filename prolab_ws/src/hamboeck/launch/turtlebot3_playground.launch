@@ -33,10 +33,6 @@
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
 
-  <!-- My crappy MCL node -->
-  <node pkg="hamboeck" type="hamboeck_node" name="mcl_node" output="screen">
-  </node>
-
   <!-- amcl -->
   <include file="$(find turtlebot3_navigation)/launch/amcl.launch">
   </include>
