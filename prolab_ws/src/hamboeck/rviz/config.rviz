@@ -7,6 +7,8 @@ Panels:
         - /Global Options1
         - /Status1
         - /LaserScan1
+        - /Marker1
+        - /Marker1/Namespaces1
       Splitter Ratio: 0.5
     Tree Height: 981
   - Class: rviz/Selection
@@ -139,6 +141,14 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /particle_markers
+      Name: Marker
+      Namespaces:
+        particles: true
+      Queue Size: 100
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -166,7 +176,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0
+      Angle: -0.08000000566244125
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
@@ -176,10 +186,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 86.12762451171875
+      Scale: 77.81212615966797
       Target Frame: <Fixed Frame>
-      X: -0.6383482813835144
-      Y: -1.682621717453003
+      X: -1.4627065658569336
+      Y: 1.8238011598587036
     Saved: ~
 Window Geometry:
   Displays:

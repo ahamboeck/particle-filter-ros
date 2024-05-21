@@ -11,9 +11,8 @@ public:
     SensorModel() {}
 
     // Method to update particle weights based on the laser scan data
-    void updateParticleWeights(std::vector<Particle> &particles, const sensor_msgs::LaserScan &scan, double sig)
+    void updateParticleWeights(std::vector<Particle> &particles, const sensor_msgs::LaserScan &scan, double sigma)
     {
-        const double sigma = sig; // Standard deviation for the Gaussian distribution
         const double sigma_sq = sigma * sigma;
         const double gaussian_norm = std::log(sigma * std::sqrt(2.0 * M_PI));
 
@@ -31,11 +30,10 @@ public:
                     double log_prob = -0.5 * (range_difference * range_difference / sigma_sq) - gaussian_norm;
 
                     log_weight += log_prob;
-                    // ROS_INFO("Particle %u: Expected range = %f, Actual range = %f, Log prob = %f", particle.getID(), expected_range, range, log_prob);
                 }
             }
             ROS_INFO("Particle %u: Log weight = %f", particle.getID(), log_weight);
-            particle.updateLogWeight(log_weight); // Update the particle's log weight
+            particle.setLogWeight(log_weight); // Directly set the particle's log weight
         }
 
         // Normalize log weights and convert to regular weights
@@ -57,9 +55,9 @@ private:
         // Find the maximum log weight
         for (const auto &particle : particles)
         {
-            if (particle.getWeight() > max_log_weight)
+            if (particle.getLogWeight() > max_log_weight)
             {
-                max_log_weight = particle.getWeight();
+                max_log_weight = particle.getLogWeight();
             }
         }
 
@@ -67,10 +65,10 @@ private:
         double weight_sum = 0.0;
         for (auto &particle : particles)
         {
-            double log_weight = particle.getWeight();
+            double log_weight = particle.getLogWeight();
             log_weight -= max_log_weight;
             double weight = std::exp(log_weight);
-            particle.setLogWeight(weight); // Temporarily store regular weight for summation
+            particle.setWeight(weight); // Temporarily store regular weight for summation
             weight_sum += weight;
         }
 
@@ -79,7 +77,7 @@ private:
         {
             for (auto &particle : particles)
             {
-                particle.setLogWeight(std::log(particle.getWeight() / weight_sum)); // Convert back to log weight
+                particle.setWeight(particle.getWeight() / weight_sum); // Normalize weight
             }
         }
         else
@@ -93,7 +91,7 @@ private:
     {
         int map_x = std::floor((x - map_.info.origin.position.x) / map_.info.resolution);
         int map_y = std::floor((y - map_.info.origin.position.y) / map_.info.resolution);
-        int max_range_in_cells = std::ceil(100.0 / map_.info.resolution); // Example for 10 meter max range
+        int max_range_in_cells = std::ceil(10.0 / map_.info.resolution); // Example for 10 meter max range
 
         double step_size = 1; // Step by one cell at a time
         for (double step = 0; step < max_range_in_cells; step += step_size)

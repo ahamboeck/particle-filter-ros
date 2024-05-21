@@ -60,9 +60,9 @@ public:
         this->weight = weight;
     }
 
-    void setLogWeight(double lw)
+    void setLogWeight(double log_likelihood)
     {
-        log_weight = lw;
+        log_weight = log_likelihood;
     }
 
     double getLogWeight() const

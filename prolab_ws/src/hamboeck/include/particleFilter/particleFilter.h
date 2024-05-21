@@ -51,7 +51,7 @@ public:
             particle.getPose(x, y, theta);
             motion_model.sampleMotionModel(x, y, theta, v, w, dt, var_v, var_w);
             particle.setPose(x, y, theta);
-            // ROS_INFO("Predicted pose of particle %d: x = %f, y = %f, theta = %f", particle.getID(), x, y, theta);
+            ROS_INFO("Predicted pose of particle %d: x = %f, y = %f, theta = %f", particle.getID(), x, y, theta);
         }
     }
 

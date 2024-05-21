@@ -3,9 +3,11 @@
 #include "../../include/sensorModel/sensorModel.h"       // Ensure this includes the definition of your SensorModel class
 #include <ros/ros.h>
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
+#include <geometry_msgs/Point.h>
 #include <nav_msgs/Odometry.h>
 #include <sensor_msgs/LaserScan.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <visualization_msgs/Marker.h>
 #include <tf/transform_datatypes.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
@@ -22,6 +24,7 @@ public:
     {
         ros::NodeHandle nh;
         pose_publisher = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("estimated_pose", 10);
+        marker_publisher = nh.advertise<visualization_msgs::Marker>("particle_markers", 1);
         odometry_subscriber = nh.subscribe("odom", 50, &LocalizationHandler::odometryCallback, this);
         sensor_data_subscriber = nh.subscribe("scan", 50, &LocalizationHandler::scanCallback, this);
         map_subscriber = nh.subscribe("map", 1, &LocalizationHandler::mapCallback, this);
@@ -63,6 +66,7 @@ private:
     SensorModel sensor_model;
     ros::Time last_time;
     ros::Publisher pose_publisher;
+    ros::Publisher marker_publisher;
     ros::Subscriber odometry_subscriber;
     ros::Subscriber sensor_data_subscriber;
     ros::Subscriber map_subscriber;
@@ -86,7 +90,7 @@ private:
         double y = msg->pose.pose.position.y;
         double theta = tf::getYaw(msg->pose.pose.orientation);
 
-        // ROS_INFO("Odometry pose: x = %f, y = %f, theta = %f", x, y, theta);
+        ROS_INFO("Odometry pose: x = %f, y = %f, theta = %f", x, y, theta);
 
         // Extract the control inputs from the odometry message
         double v = msg->twist.twist.linear.x;                // Linear velocity
@@ -104,23 +108,24 @@ private:
         std::vector<Particle> particles = filter.getParticles();
 
         // Debugging: Print weights before update
-        // for (size_t i = 0; i < particles.size(); ++i)
-        // {
-        //     ROS_INFO("Particle %zu: Weight before update = %f", i, particles[i].getWeight());
-        // }
+        for (size_t i = 0; i < particles.size(); ++i)
+        {
+            ROS_INFO("Particle %zu: Weight before update = %f", i, particles[i].getWeight());
+        }
 
         sensor_model.updateParticleWeights(particles, *msg, sigma);
         normalizeWeights(particles);
         filter.setParticles(particles);
 
         // Debugging: Print weights after update
-        // for (size_t i = 0; i < particles.size(); ++i)
-        // {
-        //     ROS_INFO("Particle %zu: Weight after update = %f", i, particles[i].getWeight());
-        // }
+        for (size_t i = 0; i < particles.size(); ++i)
+        {
+            ROS_INFO("Particle %zu: Weight after update = %f", i, particles[i].getWeight());
+        }
+        publishParticles();
         // filter.updateWeights(*msg);
         // filter.resample();
-        // publishPose();1
+        // publishPose();
     }
 
     void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg)
@@ -130,7 +135,7 @@ private:
         sensor_model.updateMap(*msg);
     }
 
-        // Raycasting method to determine the expected measurement
+    // Raycasting method to determine the expected measurement
     void normalizeWeights(std::vector<Particle> &particles)
     {
         double sum_weights = 0.0;
@@ -142,12 +147,46 @@ private:
         {
             for (auto &particle : particles)
             {
-                particle.updateWeight(particle.getWeight() / sum_weights);
+                particle.setWeight(particle.getWeight() / sum_weights);
             }
         }
         else
         {
             ROS_WARN("Sum of particle weights is zero. Cannot normalize weights.");
         }
+    }
+
+    void publishParticles()
+    {
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = "map";
+        marker.header.stamp = ros::Time::now();
+        marker.ns = "particles";
+        marker.id = 0;
+        marker.type = visualization_msgs::Marker::POINTS;
+        marker.action = visualization_msgs::Marker::ADD;
+        marker.scale.x = 0.5; // Size of the points
+        marker.scale.y = 0.5;
+
+        // Set the color of the points (red)
+        marker.color.r = 0.0f;
+        marker.color.g = 1.0f;
+        marker.color.b = 1.0f;
+        marker.color.a = 1.0;
+
+        // Add points for each particle
+        std::vector<Particle> particles = filter.getParticles();
+        for (const auto &particle : particles)
+        {
+            geometry_msgs::Point p;
+            double x, y, theta;
+            particle.getPose(x, y, theta);
+            p.x = x;
+            p.y = y;
+            p.z = 0.0; // Assuming particles are on the ground plane
+            marker.points.push_back(p);
+        }
+
+        marker_publisher.publish(marker);
     }
 };
