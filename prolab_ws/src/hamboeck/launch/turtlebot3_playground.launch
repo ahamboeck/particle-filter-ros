@@ -10,13 +10,13 @@
   <arg name="x_pos" default="0.0" />
   <arg name="y_pos" default="0.0" />
   <arg name="z_pos" default="0.0" />
-  <arg name="map_file" default="$(find hamboeck)/maps/mymap.yaml" />
+  <arg name="map_file" default="$(find hamboeck)/maps/mymap_edited.yaml" />
 
   <include file="$(find hamboeck)/launch/empty_world.launch">
     <arg name="world_name" value="$(find hamboeck)/worlds/playground.world" />
     <arg name="paused" value="false" />
     <arg name="use_sim_time" value="true" />
-    <arg name="gui" value="true" />
+    <arg name="gui" value="false" />
     <arg name="headless" value="false" />
     <arg name="debug" value="false" />
   </include>
@@ -32,6 +32,12 @@
     args="-urdf -model turtlebot3 -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
 
   <node name="map_server" pkg="map_server" type="map_server" args="$(arg map_file)" />
+
+  <!-- My crappy MCL node -->
+  <rosparam file="$(find hamboeck)/param/params.yaml" command="load"/>
+
+  <node pkg="hamboeck" type="hamboeck_node" name="mcl_node" output="screen">
+  </node>
 
   <!-- amcl -->
   <include file="$(find turtlebot3_navigation)/launch/amcl.launch">
