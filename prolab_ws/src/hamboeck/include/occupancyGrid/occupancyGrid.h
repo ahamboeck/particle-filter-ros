@@ -19,4 +19,6 @@ public:
 
     // Accessor for resolution
     float getResolution() const;
+    float getWidth() const;
+    float getHeight() const;
 };
