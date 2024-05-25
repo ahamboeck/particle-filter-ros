@@ -52,7 +52,7 @@ public:
             particle.getPose(x, y, theta);
             motion_model.sampleMotionModel(x, y, theta, v, w, dt, var_v, var_w);
             particle.setPose(x, y, theta);
-            ROS_INFO("Predicted pose of particle %d: x = %f, y = %f, theta = %f", particle.getID(), x, y, theta);
+            // ROS_INFO("Predicted pose of particle %d: x = %f, y = %f, theta = %f", particle.getID(), x, y, theta);
         }
     }
 
@@ -60,7 +60,8 @@ public:
     {
         std::vector<Particle> new_particles;
         std::vector<double> weights;
-        for (const auto &particle : particles) {
+        for (const auto &particle : particles)
+        {
             weights.push_back(particle.getWeight());
         }
 
@@ -68,15 +69,30 @@ public:
         std::mt19937 gen(rd());
         std::discrete_distribution<> distribution(weights.begin(), weights.end());
 
-        for (int i = 0; i < particles.size(); ++i) {
+        int num_random_particles = static_cast<int>(particles.size() * 0.1);
+        int num_resampled_particles = particles.size() - num_random_particles;
+
+        for (int i = 0; i < num_resampled_particles; ++i)
+        {
             new_particles.push_back(particles[distribution(gen)]);
+        }
+
+        // Add random particles
+        std::uniform_real_distribution<double> dist_x(-10, 10);
+        std::uniform_real_distribution<double> dist_y(-10, 10);
+        std::uniform_real_distribution<double> dist_theta(0, 6.28318530718);
+        for (int i = 0; i < num_random_particles; ++i)
+        {
+            Particle random_particle;
+            random_particle.setPose(dist_x(gen), dist_y(gen), dist_theta(gen));
+            random_particle.setWeight(0); // Reset weights if necessary
+            new_particles.push_back(random_particle);
         }
 
         particles = new_particles;
     }
+        // void resample();
 
-    // void resample();
-
-private:
-    std::vector<Particle> particles;
-};
+    private:
+        std::vector<Particle> particles;
+    };

@@ -32,7 +32,7 @@ public:
                     log_weight += log_prob;
                 }
             }
-            ROS_INFO("Particle %u: Log weight = %f", particle.getID(), log_weight);
+            // ROS_INFO("Particle %u: Log weight = %f", particle.getID(), log_weight);
             particle.setLogWeight(log_weight); // Directly set the particle's log weight
         }
 

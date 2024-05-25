@@ -1,5 +1,5 @@
 # Define the number of particles
-num_particles: 10
+num_particles: 1000
 # Define the starting positions of the particles
 initial_x_min: -10
 initial_x_max: 10
@@ -9,8 +9,8 @@ initial_theta_min: 0
 initial_theta_max: 6.28319
 
 # Define a variance for the particles motion model
-var_v: 0.1
-var_w: 0.1
+var_v: 0.05
+var_w: 0.02
 
 # Define gaussian for the sensor model
-sigma: 30.0
+sigma: 5
