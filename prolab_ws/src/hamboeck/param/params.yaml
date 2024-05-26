@@ -1,20 +1,12 @@
 # Define the number of particles
-num_particles: 100
-
-# Define the starting positions of the particles
-initial_x_min: -10
-initial_x_max: 10
-initial_y_min: -10
-initial_y_max: 10
-initial_theta_min: 0
+num_particles: 1000
+initial_x_min: -10.0
+initial_x_max: 10.0
+initial_y_min: -10.0
+initial_y_max: 10.0
+initial_theta_min: 0.0
 initial_theta_max: 6.28319
-
-# Define a variance for the particles motion model
 var_v: 0.01
 var_w: 0.01
-
-# Define gaussian for the sensor model
-sigma: 8.0
-
-# Define the percentage of particles to be resampled
+sigma: 0.001
 percentage_rand_particles: 0.05

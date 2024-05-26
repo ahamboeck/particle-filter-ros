@@ -41,8 +41,10 @@ public:
         nh.getParam("initial_theta_min", theta_min);
         nh.getParam("initial_theta_max", theta_max);
         nh.getParam("num_particles", num_particles);
-        nh.param("sigma", sigma, 0.0);  
-        nh.param("percentage_rand_particles", percentage_rand_particles, 0.0);
+        nh.getParam("sigma", sigma);
+        ROS_INFO("sigma: %f", sigma);  
+        nh.getParam("percentage_rand_particles", percentage_rand_particles);
+        ROS_INFO("percentage_rand_particles: %f", percentage_rand_particles);
         // Initialize the motion model parameters
         nh.getParam("var_v", var_v);
         nh.getParam("var_w", var_w);
@@ -96,7 +98,7 @@ private:
         double y = msg->pose.pose.position.y;
         double theta = tf::getYaw(msg->pose.pose.orientation);
 
-        ROS_INFO("Odometry pose: x = %f, y = %f, theta = %f", x, y, theta);
+        // ROS_INFO("Odometry pose: x = %f, y = %f, theta = %f", x, y, theta);
 
         // Extract the control inputs from the odometry message
         double v = msg->twist.twist.linear.x;                // Linear velocity
@@ -132,7 +134,7 @@ private:
         publishParticles();
         // filter.updateWeights(*msg);
         // filter.resample();
-        // publishPose();
+        publishPose();
     }
 
     void mapCallback(const nav_msgs::OccupancyGrid::ConstPtr &msg)
@@ -161,6 +163,65 @@ private:
         {
             ROS_WARN("Sum of particle weights is zero. Cannot normalize weights.");
         }
+    }
+
+        // Publish the estimated pose of the robot as marker, use the 100 weighted particles, their average pose as the estimated pose and use the color red
+    void publishPose()
+    {
+        geometry_msgs::PoseWithCovarianceStamped pose_msg;
+        pose_msg.header.frame_id = "map";
+        pose_msg.header.stamp = ros::Time::now();
+
+        std::vector<Particle> particles = filter.getParticles();
+        if (particles.empty())
+        {
+            ROS_WARN("No particles available to calculate pose.");
+            return;
+        }
+
+        double x_sum = 0.0, y_sum = 0.0, theta_sum = 0.0;
+        for (const auto &particle : particles)
+        {
+            double x, y, theta;
+            particle.getPose(x, y, theta);
+            x_sum += x;
+            y_sum += y;
+            theta_sum += theta;
+        }
+
+        double n = static_cast<double>(particles.size());
+        double x_avg = x_sum / n;
+        double y_avg = y_sum / n;
+        double theta_avg = theta_sum / n;
+
+        double sum_sq_x = 0.0, sum_sq_y = 0.0, sum_sq_theta = 0.0;
+        for (const auto &particle : particles)
+        {
+            double x, y, theta;
+            particle.getPose(x, y, theta);
+            sum_sq_x += std::pow(x - x_avg, 2);
+            sum_sq_y += std::pow(y - y_avg, 2);
+            sum_sq_theta += std::pow(theta - theta_avg, 2);
+        }
+
+        double var_x = sum_sq_x / n;
+        double var_y = sum_sq_y / n;
+        double var_theta = sum_sq_theta / n;
+
+        // Populate the PoseWithCovariance
+        pose_msg.pose.pose.position.x = x_avg;
+        pose_msg.pose.pose.position.y = y_avg;
+        pose_msg.pose.pose.orientation = tf::createQuaternionMsgFromYaw(theta_avg);
+
+        // Set covariance
+        // For simplicity, assume no correlation between different dimensions
+        pose_msg.pose.covariance[0] = var_x;      // Variance of x
+        pose_msg.pose.covariance[7] = var_y;      // Variance of y
+        pose_msg.pose.covariance[35] = var_theta; // Variance of theta (yaw)
+
+        // Publish the message
+        pose_publisher.publish(pose_msg);
+        // ROS_INFO("Published pose estimate: x = %f, y = %f, theta = %f", x_avg, y_avg, theta_avg);
     }
 
     void publishParticles()

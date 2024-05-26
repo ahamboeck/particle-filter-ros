@@ -79,7 +79,7 @@ public:
     void updateLogWeight(double log_likelihood)
     {
         log_weight += log_likelihood;
-        ROS_INFO("Particle %u: Log weight after update = %f", particle_id, log_weight);
+        // ROS_INFO("Particle %u: Log weight after update = %f", particle_id, log_weight);
     }
 
     void setID(int id)

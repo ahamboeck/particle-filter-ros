@@ -52,7 +52,7 @@ public:
             particle.getPose(x, y, theta);
             motion_model.sampleMotionModel(x, y, theta, v, w, dt, var_v, var_w);
             particle.setPose(x, y, theta);
-            ROS_INFO("Predicted pose of particle %d: x = %f, y = %f, theta = %f", particle.getID(), x, y, theta);
+            // ROS_INFO("Predicted pose of particle %d: x = %f, y = %f, theta = %f", particle.getID(), x, y, theta);
         }
     }
 
@@ -69,8 +69,10 @@ public:
         std::mt19937 gen(rd());
         std::discrete_distribution<> distribution(weights.begin(), weights.end());
 
-        int num_random_particles = particles.size() * percentage_rand_particles; // 5% random particles
-        for (int i = 0; i < particles.size() - num_random_particles; ++i)
+        int num_random_particles = static_cast<int>(particles.size() * percentage_rand_particles);
+        int num_resampled_particles = particles.size() - num_random_particles;
+
+        for (int i = 0; i < num_resampled_particles; ++i)
         {
             new_particles.push_back(particles[distribution(gen)]);
         }
@@ -83,7 +85,7 @@ public:
         {
             Particle random_particle;
             random_particle.setPose(dist_x(gen), dist_y(gen), dist_theta(gen));
-            random_particle.setWeight(1.0 / particles.size()); // Optional: uniform or small weight
+            random_particle.setWeight(0); // Reset weights if necessary
             new_particles.push_back(random_particle);
         }
 

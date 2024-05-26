@@ -17,7 +17,7 @@ public:
         origin_y = msg->info.origin.position.y;
         grid.assign(msg->data.begin(), msg->data.end());
 
-        ROS_INFO("Map updated: %dx%d, res: %f", width, height, resolution);
+        // ROS_INFO("Map updated: %dx%d, res: %f", width, height, resolution);
     }
 
     int getCellValue(int x, int y) const {
