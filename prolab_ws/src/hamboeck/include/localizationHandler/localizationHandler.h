@@ -28,8 +28,8 @@ public:
         ros::NodeHandle nh;
         pose_publisher = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("estimated_pose", 10);
         marker_array_publisher = nh.advertise<visualization_msgs::MarkerArray>("particle_marker_array", 1);
-        odometry_subscriber = nh.subscribe("odom", 50, &LocalizationHandler::odometryCallback, this);
-        sensor_data_subscriber = nh.subscribe("scan", 50, &LocalizationHandler::scanCallback, this);
+        odometry_subscriber = nh.subscribe("odom", 1, &LocalizationHandler::odometryCallback, this);
+        sensor_data_subscriber = nh.subscribe("scan", 1, &LocalizationHandler::scanCallback, this);
         map_subscriber = nh.subscribe("map", 1, &LocalizationHandler::mapCallback, this);
 
         // Initialize the particle filter with parameters
