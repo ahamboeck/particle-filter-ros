@@ -85,7 +85,7 @@ public:
         {
             Particle random_particle;
             random_particle.setPose(dist_x(gen), dist_y(gen), dist_theta(gen));
-            random_particle.setWeight(0); // Reset weights if necessary
+            random_particle.setWeight(1.0/particles.size()); // Reset weights if necessary
             new_particles.push_back(random_particle);
         }
 
