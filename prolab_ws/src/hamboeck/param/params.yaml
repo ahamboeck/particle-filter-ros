@@ -6,7 +6,7 @@ initial_y_min: -10.0
 initial_y_max: 10.0
 initial_theta_min: 0.0
 initial_theta_max: 6.28319
-var_v: 5.0
-var_w: 1.0
-sigma: 1.00
+var_v: 2.0
+var_w: 0.5
+sigma: 0.001
 percentage_rand_particles: 0.1
