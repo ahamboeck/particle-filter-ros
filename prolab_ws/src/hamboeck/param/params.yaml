@@ -13,4 +13,4 @@ var_v: 0.05
 var_w: 0.02
 
 # Define gaussian for the sensor model
-sigma: 5
+sigma: 0.0001

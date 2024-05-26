@@ -38,7 +38,9 @@ public:
         nh.getParam("initial_theta_min", theta_min);
         nh.getParam("initial_theta_max", theta_max);
         nh.getParam("num_particles", num_particles);
-        nh.param("sigma", sigma, 0.1); // Default to 0.1 if not set
+        nh.getParam("sigma", sigma);
+        ROS_INFO("Sigma: %f", sigma);
+         // Default to 0.1 if not set
         // Initialize the motion model parameters
         nh.getParam("var_v", var_v);
         nh.getParam("var_w", var_w);
@@ -117,7 +119,7 @@ private:
         normalizeWeights(particles);
         filter.setParticles(particles);
         filter.resample();
-        // publishParticles();
+        publishParticles();
         publishPose();
     }
 
