@@ -1,19 +1,20 @@
 #pragma once
-#include "../../include/particleFilter/particleFilter.h" // Ensure this includes the definition of your ParticleFilter class
-#include "../../include/sensorModel/sensorModel.h"       // Ensure this includes the definition of your SensorModel class
 #include <ros/ros.h>
+#include "../../include/sensorModel/sensorModel.h" // Ensure this includes the definition of your SensorModel class
 #include <geometry_msgs/PoseWithCovarianceStamped.h>
-#include <geometry_msgs/Point.h>
+#include "../../include/particleFilter/particleFilter.h" // Ensure this includes the definition of your ParticleFilter class
 #include <nav_msgs/Odometry.h>
+#include <geometry_msgs/Point.h>
 #include <sensor_msgs/LaserScan.h>
-#include <nav_msgs/OccupancyGrid.h>
-#include <visualization_msgs/Marker.h>
-#include <visualization_msgs/MarkerArray.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf/transform_datatypes.h>
-#include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
+#include <nav_msgs/OccupancyGrid.h>
+#include <tf/transform_datatypes.h>
+#include <geometry_msgs/PoseArray.h>
+#include <tf/transform_broadcaster.h>
+#include <visualization_msgs/Marker.h>
+#include <tf2/LinearMath/Quaternion.h>
+#include <visualization_msgs/MarkerArray.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 class LocalizationHandler
 {
@@ -26,9 +27,9 @@ public:
     void initialize()
     {
         ros::NodeHandle nh;
-        pose_publisher = nh.advertise<geometry_msgs::PoseWithCovarianceStamped>("estimated_pose", 10);
+        pose_publisher = nh.advertise<geometry_msgs::PoseArray>("pose_array", 1);
         marker_array_publisher = nh.advertise<visualization_msgs::MarkerArray>("particle_marker_array", 1);
-        odometry_subscriber = nh.subscribe("odom", 1, &LocalizationHandler::odometryCallback, this);
+        odometry_subscriber = nh.subscribe("odom", 10, &LocalizationHandler::odometryCallback, this);
         sensor_data_subscriber = nh.subscribe("scan", 1, &LocalizationHandler::scanCallback, this);
         map_subscriber = nh.subscribe("map", 1, &LocalizationHandler::mapCallback, this);
 
@@ -42,7 +43,7 @@ public:
         nh.getParam("initial_theta_max", theta_max);
         nh.getParam("num_particles", num_particles);
         nh.getParam("sigma", sigma);
-        ROS_INFO("sigma: %f", sigma);  
+        ROS_INFO("sigma: %f", sigma);
         nh.getParam("percentage_rand_particles", percentage_rand_particles);
         ROS_INFO("percentage_rand_particles: %f", percentage_rand_particles);
         // Initialize the motion model parameters
@@ -165,12 +166,12 @@ private:
         }
     }
 
-        // Publish the estimated pose of the robot as marker, use the 100 weighted particles, their average pose as the estimated pose and use the color red
+    // Publish the estimated pose of the robot as marker, use the 100 weighted particles, their average pose as the estimated pose and use the color red
     void publishPose()
     {
-        geometry_msgs::PoseWithCovarianceStamped pose_msg;
-        pose_msg.header.frame_id = "map";
-        pose_msg.header.stamp = ros::Time::now();
+        geometry_msgs::PoseArray pose_array;
+        pose_array.header.frame_id = "map";
+        pose_array.header.stamp = ros::Time::now();
 
         std::vector<Particle> particles = filter.getParticles();
         if (particles.empty())
@@ -179,49 +180,21 @@ private:
             return;
         }
 
-        double x_sum = 0.0, y_sum = 0.0, theta_sum = 0.0;
         for (const auto &particle : particles)
         {
             double x, y, theta;
             particle.getPose(x, y, theta);
-            x_sum += x;
-            y_sum += y;
-            theta_sum += theta;
+
+            geometry_msgs::Pose pose;
+            pose.position.x = x;
+            pose.position.y = y;
+            pose.orientation = tf::createQuaternionMsgFromYaw(theta);
+
+            pose_array.poses.push_back(pose);
         }
 
-        double n = static_cast<double>(particles.size());
-        double x_avg = x_sum / n;
-        double y_avg = y_sum / n;
-        double theta_avg = theta_sum / n;
-
-        double sum_sq_x = 0.0, sum_sq_y = 0.0, sum_sq_theta = 0.0;
-        for (const auto &particle : particles)
-        {
-            double x, y, theta;
-            particle.getPose(x, y, theta);
-            sum_sq_x += std::pow(x - x_avg, 2);
-            sum_sq_y += std::pow(y - y_avg, 2);
-            sum_sq_theta += std::pow(theta - theta_avg, 2);
-        }
-
-        double var_x = sum_sq_x / n;
-        double var_y = sum_sq_y / n;
-        double var_theta = sum_sq_theta / n;
-
-        // Populate the PoseWithCovariance
-        pose_msg.pose.pose.position.x = x_avg;
-        pose_msg.pose.pose.position.y = y_avg;
-        pose_msg.pose.pose.orientation = tf::createQuaternionMsgFromYaw(theta_avg);
-
-        // Set covariance
-        // For simplicity, assume no correlation between different dimensions
-        pose_msg.pose.covariance[0] = var_x;      // Variance of x
-        pose_msg.pose.covariance[7] = var_y;      // Variance of y
-        pose_msg.pose.covariance[35] = var_theta; // Variance of theta (yaw)
-
-        // Publish the message
-        pose_publisher.publish(pose_msg);
-        // ROS_INFO("Published pose estimate: x = %f, y = %f, theta = %f", x_avg, y_avg, theta_avg);
+        pose_publisher.publish(pose_array); // Ensure pose_publisher is appropriately defined to publish PoseArray
+        // ROS_INFO("Published pose array with %zu poses.", pose_array.poses.size());
     }
 
     void publishParticles()
@@ -240,11 +213,10 @@ private:
             marker.type = visualization_msgs::Marker::ARROW;
             marker.action = visualization_msgs::Marker::ADD;
 
-            // Scale factor based on particle weight
-            double scale_factor = std::max(particle.getWeight() * 10, 0.5); // Ensuring a minimum size
-            marker.scale.x = 0.1 * scale_factor;                            // Shaft diameter
-            marker.scale.y = 0.2 * scale_factor;                            // Head diameter
-            marker.scale.z = 0.15 * scale_factor;                           // Head length
+            // Set a smaller fixed scale for all particles
+            marker.scale.x = 0.05; // Shaft diameter (reduced from 0.1)
+            marker.scale.y = 0.1;  // Head diameter (reduced from 0.2)
+            marker.scale.z = 0.1;  // Head length (reduced from 0.15)
 
             marker.color.r = 0.0f;
             marker.color.g = 1.0f;
@@ -264,8 +236,8 @@ private:
             quat.setRPY(0, 0, theta); // Roll, pitch, yaw
             marker.pose.orientation = tf2::toMsg(quat);
 
-            // Define arrow length within the marker's local coordinate frame
-            double arrow_length = 1.5 * scale_factor; // Arrow length increases with weight
+            // Define a shorter arrow length within the marker's local coordinate frame
+            double arrow_length = 1.0; // Reduced arrow length for a more subtle visualization (down from 1.5)
 
             // Set the points for the arrow relative to the local coordinate frame
             geometry_msgs::Point start_point, end_point;

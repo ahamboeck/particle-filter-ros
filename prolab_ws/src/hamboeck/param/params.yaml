@@ -1,12 +1,12 @@
 # Define the number of particles
-num_particles: 1000
+num_particles: 600
 initial_x_min: -10.0
 initial_x_max: 10.0
 initial_y_min: -10.0
 initial_y_max: 10.0
 initial_theta_min: 0.0
 initial_theta_max: 6.28319
-var_v: 2.0
-var_w: 0.5
-sigma: 0.001
-percentage_rand_particles: 0.1
+var_v: 1.5
+var_w: 0.3
+sigma: 0.00001
+percentage_rand_particles: 0.05

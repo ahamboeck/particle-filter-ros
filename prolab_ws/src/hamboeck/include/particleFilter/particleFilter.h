@@ -56,41 +56,70 @@ public:
         }
     }
 
-    void resample(double x_min, double x_max, double y_min, double y_max, double theta_min, double theta_max, double percentage_rand_particles)
+void resample(double x_min, double x_max, double y_min, double y_max, double theta_min, double theta_max, double percentage_rand_particles)
+{
+    std::vector<Particle> new_particles;
+    std::vector<double> weights;
+    for (const auto &particle : particles)
     {
-        std::vector<Particle> new_particles;
-        std::vector<double> weights;
-        for (const auto &particle : particles)
-        {
-            weights.push_back(particle.getWeight());
-        }
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::discrete_distribution<> distribution(weights.begin(), weights.end());
-
-        int num_random_particles = static_cast<int>(particles.size() * percentage_rand_particles);
-        int num_resampled_particles = particles.size() - num_random_particles;
-
-        for (int i = 0; i < num_resampled_particles; ++i)
-        {
-            new_particles.push_back(particles[distribution(gen)]);
-        }
-
-        // Add random particles
-        std::uniform_real_distribution<double> dist_x(x_min, x_max);
-        std::uniform_real_distribution<double> dist_y(y_min, y_max);
-        std::uniform_real_distribution<double> dist_theta(theta_min, theta_max);
-        for (int i = 0; i < num_random_particles; ++i)
-        {
-            Particle random_particle;
-            random_particle.setPose(dist_x(gen), dist_y(gen), dist_theta(gen));
-            random_particle.setWeight(1.0/particles.size()); // Reset weights if necessary
-            new_particles.push_back(random_particle);
-        }
-
-        particles = new_particles;
+        weights.push_back(particle.getWeight());
     }
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::discrete_distribution<> distribution(weights.begin(), weights.end());
+
+    int num_random_particles = static_cast<int>(particles.size() * percentage_rand_particles);
+    int num_resampled_particles = particles.size() - num_random_particles;
+
+    // Standard deviations for Gaussian distribution around each particle
+    double std_dev_position = 0.2; // Standard deviation for x and y
+    double std_dev_theta = M_PI / 36; // Standard deviation for theta (5 degrees)
+
+    std::normal_distribution<> gauss_x(0, std_dev_position);
+    std::normal_distribution<> gauss_y(0, std_dev_position);
+    std::normal_distribution<> gauss_theta(0, std_dev_theta);
+
+    // Resample particles with added Gaussian noise
+    for (int i = 0; i < num_resampled_particles; ++i)
+    {
+        Particle original = particles[distribution(gen)];
+        double x, y, theta;
+        original.getPose(x, y, theta);
+
+        // Add Gaussian noise to the pose
+        x += gauss_x(gen);
+        y += gauss_y(gen);
+        theta += gauss_theta(gen);
+
+        // Ensure theta remains within the range [-π, π]
+        theta = std::fmod(theta, 2 * M_PI);
+        if (theta > M_PI)
+            theta -= 2 * M_PI;
+        else if (theta < -M_PI)
+            theta += 2 * M_PI;
+
+        Particle new_particle;
+        new_particle.setPose(x, y, theta);
+        new_particle.setWeight(1.0 / particles.size()); // Reset weights if necessary
+        new_particles.push_back(new_particle);
+    }
+
+    // Add completely random particles
+    std::uniform_real_distribution<double> dist_x(x_min, x_max);
+    std::uniform_real_distribution<double> dist_y(y_min, y_max);
+    std::uniform_real_distribution<double> dist_theta(theta_min, theta_max);
+    for (int i = 0; i < num_random_particles; ++i)
+    {
+        Particle random_particle;
+        random_particle.setPose(dist_x(gen), dist_y(gen), dist_theta(gen));
+        random_particle.setWeight(1.0 / particles.size()); // Reset weights if necessary
+        new_particles.push_back(random_particle);
+    }
+
+    particles = new_particles;
+}
+
 
 private:
     std::vector<Particle> particles;

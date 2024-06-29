@@ -7,6 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /LaserScan1
+        - /PoseArray1
       Splitter Ratio: 0.5
     Tree Height: 1522
   - Class: rviz/Selection
@@ -147,35 +148,38 @@ Visualization Manager:
         {}
       Queue Size: 100
       Value: false
+    - Class: rviz/TF
+      Enabled: false
+      Filter (blacklist): ""
+      Filter (whitelist): ""
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+      Marker Alpha: 1
+      Marker Scale: 1
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        {}
+      Update Interval: 0
+      Value: false
     - Alpha: 1
-      Axes Length: 1
-      Axes Radius: 0.10000000149011612
-      Class: rviz/PoseWithCovariance
+      Arrow Length: 0.30000001192092896
+      Axes Length: 0.30000001192092896
+      Axes Radius: 0.009999999776482582
+      Class: rviz/PoseArray
       Color: 255; 25; 0
-      Covariance:
-        Orientation:
-          Alpha: 0.5
-          Color: 255; 255; 127
-          Color Style: Unique
-          Frame: Local
-          Offset: 1
-          Scale: 1
-          Value: true
-        Position:
-          Alpha: 0.30000001192092896
-          Color: 204; 51; 204
-          Scale: 1
-          Value: true
-        Value: true
       Enabled: true
-      Head Length: 0.30000001192092896
-      Head Radius: 0.10000000149011612
-      Name: PoseWithCovariance
+      Head Length: 0.07000000029802322
+      Head Radius: 0.029999999329447746
+      Name: PoseArray
       Queue Size: 10
-      Shaft Length: 1
-      Shaft Radius: 0.05000000074505806
-      Shape: Arrow
-      Topic: /estimated_pose
+      Shaft Length: 0.23000000417232513
+      Shaft Radius: 0.009999999776482582
+      Shape: Arrow (Flat)
+      Topic: /pose_array
       Unreliable: false
       Value: true
   Enabled: true
@@ -205,7 +209,7 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Angle: 0.07500009983778
+      Angle: 0.005000141449272633
       Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
@@ -215,10 +219,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 191.6004180908203
+      Scale: 57.26256561279297
       Target Frame: <Fixed Frame>
-      X: -1.6893035173416138
-      Y: 1.0289241075515747
+      X: 0.5322766304016113
+      Y: -0.2845499813556671
     Saved: ~
 Window Geometry:
   Displays:
