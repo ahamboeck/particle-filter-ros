@@ -11,15 +11,15 @@ This project was developed as part of a course at UAS Technikum Wien.
 - C++14
 
 ### Installing
-- Clone the repository: `git clone [repository-url]`
-- Navigate to the project directory: `cd [project-directory]`
+- Clone the repository: `git clone https://github.com/ahamboeck/particle-filter-ros.git`
+- Navigate to the project directory: `cd prolab_ws`
 - Build the project using catkin: `catkin_make`
 - Source the setup script: `source devel/setup.bash`
 
 ## Usage
-- Launch the simulation: `roslaunch pro_lab simulation.launch`
-- To visualize the particle filter in action, open RViz: `rviz`
-- Load the RViz configuration provided in the `rviz/config.rviz`.
+- Launch the simulation: `roslaunch hamboeck turtlebot3_playground.launch`
+- Run the pose publisher: `rosrun hamboeck publish_poses`
+- To save your own plots: `rosrun hamboeck plots.py`
 
 ## Timeline
 This section is only for myself to keep track of what I've done during the time working on it.
@@ -51,6 +51,9 @@ To-do:
 - Integrate advanced sensor models.
 - Conduct extensive testing with different scenarios in the simulation to validate the localization under various conditions.
 - Document and prepare for project presentation.
+
+### 29.06.2024
+The timeline was not done disciplined but now everything is included and finished. A new demo video is also added.
 
 ## Contributors
 - Alexander Hamböck

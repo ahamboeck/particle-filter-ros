@@ -94,7 +94,7 @@ private:
             return;
         }
 
-        // Extract the ground truth pose from the odometry message
+        // Extract the ground truth pose from the odometry message for debugging purposes (this is not used in the MCL implementation)
         double x = msg->pose.pose.position.x;
         double y = msg->pose.pose.position.y;
         double theta = tf::getYaw(msg->pose.pose.orientation);

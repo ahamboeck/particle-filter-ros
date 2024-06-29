@@ -61,7 +61,7 @@ def plot_results(sigma=5):  # Increased sigma for more smoothing
     plt.rcParams.update({'font.size': 24})  # Increased font size for better readability
 
     # Path Plot
-    plt.figure(figsize=(12, 14))
+    plt.figure(figsize=(12, 8))
     plt.plot(ground_truth_x, ground_truth_y, label='True Path', color='blue')
     plt.plot(smooth_pose_x, smooth_pose_y, label='MCL Predicted Path (Smoothed)', color='red')
     plt.title('Path Traveled (X-Y Plane)')
@@ -74,7 +74,7 @@ def plot_results(sigma=5):  # Increased sigma for more smoothing
     plt.close()
 
     # X Position Plot
-    plt.figure(figsize=(12, 14))
+    plt.figure(figsize=(12, 8))
     plt.plot(ground_truth_x, label='True Pose X (meters)')
     plt.plot(smooth_pose_x, label='MCL Predicted Pose X (Smoothed)')
     plt.title('X Position Over Time')
@@ -86,7 +86,7 @@ def plot_results(sigma=5):  # Increased sigma for more smoothing
     plt.close()
 
     # Y Position Plot
-    plt.figure(figsize=(12, 14))
+    plt.figure(figsize=(12, 8))
     plt.plot(ground_truth_y, label='True Pose Y (meters)')
     plt.plot(smooth_pose_y, label='MCL Predicted Pose Y (Smoothed)')
     plt.title('Y Position Over Time')
@@ -98,7 +98,7 @@ def plot_results(sigma=5):  # Increased sigma for more smoothing
     plt.close()
 
     # Theta Plot
-    plt.figure(figsize=(12, 14))
+    plt.figure(figsize=(12, 8))
     plt.plot(ground_truth_theta, label='True Pose Theta (radians)')
     plt.plot(smooth_pose_theta, label='MCL Predicted Pose Theta (Smoothed)')
     plt.title('Theta Over Time')
@@ -110,7 +110,7 @@ def plot_results(sigma=5):  # Increased sigma for more smoothing
     plt.close()
 
     # Error Plots
-    plt.figure(figsize=(12, 14))
+    plt.figure(figsize=(12, 8))
     plt.plot(x_error, label='X Error (meters)', color='orange')
     plt.title('Error in X Position')
     plt.xlabel('Time Step')
@@ -120,7 +120,7 @@ def plot_results(sigma=5):  # Increased sigma for more smoothing
     plt.savefig(os.path.join(plot_dir, 'X_Error.png'))
     plt.close()
 
-    plt.figure(figsize=(12, 14))
+    plt.figure(figsize=(12, 8))
     plt.plot(y_error, label='Y Error (meters)', color='green')
     plt.title('Error in Y Position')
     plt.xlabel('Time Step')
@@ -130,7 +130,7 @@ def plot_results(sigma=5):  # Increased sigma for more smoothing
     plt.savefig(os.path.join(plot_dir, 'Y_Error.png'))
     plt.close()
 
-    plt.figure(figsize=(12, 14))
+    plt.figure(figsize=(12, 8))
     plt.plot(theta_error, label='Theta Error (radians)', color='purple')
     plt.title('Error in Theta')
     plt.xlabel('Time Step')
