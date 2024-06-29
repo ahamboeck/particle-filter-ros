@@ -10,13 +10,16 @@ This project was developed as part of a course at UAS Technikum Wien.
 - Boost 1.71
 - C++14
 
+### Notes
+- The Turtlebot3 LiDaR is modified to have a range of about 100 meters and only 60 scans in 360°
+
 ### Installing
 - Clone the repository: `git clone https://github.com/ahamboeck/particle-filter-ros.git`
 - Navigate to the project directory: `cd prolab_ws`
 - Build the project using catkin: `catkin_make`
 - Source the setup script: `source devel/setup.bash`
 
-## Usage
+### Usage
 - Launch the simulation: `roslaunch hamboeck turtlebot3_playground.launch`
 - Run the pose publisher: `rosrun hamboeck publish_poses`
 - To save your own plots: `rosrun hamboeck plots.py`
